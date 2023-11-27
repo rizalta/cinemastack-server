@@ -50,7 +50,20 @@ export const updateUsername = async (req, res) => {
   const _id = req.user._id;
   
   try {
-    const user = await User.updateUser(username, _id);
+    await User.updateUser(username, _id);
+
+    res.status(200).json({ message: "Success" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+export const changePassword = async (req, res) => {
+  const { oldPass, newPass } = req.body;
+  const _id = req.user._id;
+
+  try {
+    await User.change(oldPass, newPass, _id);
 
     res.status(200).json({ message: "Success" });
   } catch (error) {

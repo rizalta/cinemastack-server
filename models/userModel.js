@@ -89,9 +89,30 @@ userSchema.statics.updateUser = async function(username, _id) {
     throw new Error("No changes made");
   }
   
-  const updatedUser = await this.findByIdAndUpdate(_id, { username }, { new: true });
+  await this.findByIdAndUpdate(_id, { username }, { new: true });
+}
 
-  return updatedUser; 
+userSchema.statics.change = async function(oldPass, newPass, _id) {
+  if (!oldPass || !newPass) {
+    throw new Error("All fields are required");
+  }
+
+  const user = await this.findById(_id);
+
+  const match = await compare(oldPass, user.password);
+
+  if (!match) {
+    throw new Error("Incorrect Passord");
+  }
+
+  if (oldPass === newPass) {
+    throw new Error("New password cannot be current password");
+  }
+
+  const salt = await genSalt(10);
+  const hashedPassword = await hash(newPass, salt);
+
+  await this.findByIdAndUpdate(_id, { password: hashedPassword }, { new: true });
 }
 
 export default mongoose.model('User', userSchema);
