@@ -115,4 +115,22 @@ userSchema.statics.change = async function(oldPass, newPass, _id) {
   await this.findByIdAndUpdate(_id, { password: hashedPassword }, { new: true });
 }
 
+userSchema.statics.reset = async function(password, _id) {
+  if (!password) {
+    throw new Error("All fields are required");
+  }
+  
+  const user = await this.findById(_id);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const match = compare(password, user.password);
+  if (match) {
+    throw new Error("New password cannot be current password");
+  }
+
+  
+}
+
 export default mongoose.model('User', userSchema);

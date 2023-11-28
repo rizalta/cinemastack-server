@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import User from "./userModel.js";
-import sendMail from "../utils/transporter.js";
 import otpGenerator from "otp-generator";
 
 const otpSchema = new mongoose.Schema({
@@ -20,7 +19,7 @@ const otpSchema = new mongoose.Schema({
   },
 });
 
-otpSchema.statics.send = async function(email) {
+otpSchema.statics.generate = async function(email) {
   const match1 = await User.findOne({ email });
 
   if (match1) {
@@ -30,7 +29,7 @@ otpSchema.statics.send = async function(email) {
   const match2 = await this.findOne({ email });
   
   if (match2) {
-    return;
+    await this.deleteOne({ email });
   }
 
   const otp = otpGenerator.generate(6, {
@@ -41,9 +40,7 @@ otpSchema.statics.send = async function(email) {
 
   const res = await this.create({ email, otp })
 
-  if (res) {
-    sendMail(email, otp);
-  }
+  return res.otp;
 }
 
 export default mongoose.model("Otp", otpSchema);

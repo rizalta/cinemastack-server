@@ -41,19 +41,11 @@ const createTransporter = async () => {
   });
 
   return transporter;
-}
+} 
 
-
-const sendMail = async (email, otp) => {
+const sendMail = async (mailOptions) => {
   try {
     const transporter = await createTransporter();
-
-    const mailOptions = {
-      from: 'cinemastack',
-      to: email,
-      subject: 'Verify your email account',
-      html: `Use this otp to verify your account. ${otp}`
-    }
 
     await transporter.sendMail(mailOptions);
   } catch (error) {

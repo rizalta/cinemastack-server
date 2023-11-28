@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { changePassword, deleteUser, sendOtp, updateUsername, userLogin, userSignup } from '../controllers/userController.js';
+import { changePassword, deleteUser, forgotPassword, sendOtp, updateUsername, userLogin, userSignup } from '../controllers/userController.js';
 import requireAuth from "../middlewares/requireAuth.js";
 
 const router = Router();
@@ -11,5 +11,6 @@ router.post("/otp", sendOtp);
 router.post("/update", requireAuth, updateUsername);
 router.post("/change", requireAuth, changePassword);
 router.delete("/", requireAuth, deleteUser);
+router.post("/forgot", forgotPassword);
 
 export default router;
