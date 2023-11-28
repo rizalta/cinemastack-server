@@ -1,6 +1,7 @@
 import User from '../models/userModel.js';
 import Otp from "../models/otpModel.js";
 import jwt from 'jsonwebtoken';
+import { compare } from "bcrypt";
 
 
 const createToken = (_id) => {
@@ -69,4 +70,23 @@ export const changePassword = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+}
+
+export const deleteUser = async (req, res) => {
+  const password =  req.body.password;
+  const _id = req.user._id;
+
+  try {
+    const user = await User.findById(_id);
+    const match = await compare(password, user.password);
+
+    if (!match) {
+      throw new Error("Invalid password");
+    }
+    await User.findByIdAndDelete(_id);
+
+    res.status(200).json({ message: "Account deleted" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  } 
 }
