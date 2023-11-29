@@ -58,7 +58,7 @@ export const sendOtp = async (req, res) => {
             </table>
             <h1 style="color: black;">cinemaStack Account Registration</h1>
             <p style="color: black;">Welcome to cinemaStack. Use this OTP to complete your registration.</p>
-            <span style="font-size: xx-large; border-radius: 4px; background-color: black; color: white; padding: 3px;">${otp}</span>
+            <span style="font-size: xx-large; border-radius: 10px; background-color: DodgerBlue; color: white; padding: 6px;">${otp}</span>
             <p style="color: black;">We will see you there.</p>
           </body>
         </html>`,
@@ -132,7 +132,7 @@ export const forgotPassword = async (req, res) => {
     if (!user) {
       throw new Error("Email not registered");
     }
-    const token = jwt.sign({ _id: user._id }, process.env.FORGOT_SECRET, { expiresIn: "10m" });
+    const token = jwt.sign({ _id: user._id }, process.env.FORGOT_SECRET, { expiresIn: "5m" });
     
     const mailOptions = {
       from: 'cinemaStack',
@@ -148,8 +148,8 @@ export const forgotPassword = async (req, res) => {
               </tr>
             </table>
             <h1 style="color: black;">Reset your account password</h1>
-            <p style="color: black;">Hey user, looks like you forgot your password. Don't worry. Use the link below to reset your password</p>
-            <a href=${process.env.CLIENT_URL + "forgot/reset?token=" + token}><span style="font-size: xx-large; border-radius: 4px; background-color: black; color: white; padding: 3px;">Reset Password</span></a>
+            <p style="color: black;">Hey user, looks like you forgot your password. Don't worry. Use the link below to reset your password. This link is valid for 5 minutes.</p>
+            <a href=${process.env.CLIENT_URL + "forgot/reset?token=" + token}><span style="font-size: xx-large; border-radius: 10px; background-color: DodgerBlue; color: white; padding: 4px;">Reset Password</span></a>
             <p style="color: black;">We will see you there.</p>
           </body>
         </html>`,
@@ -171,5 +171,15 @@ export const forgotPassword = async (req, res) => {
 }
 
 export const updatePassword = async (req, res) => {
+  const { password, token } = req.body;
 
+  try {
+    const { _id } = jwt.verify(token, process.env.FORGOT_SECRET);
+    
+    await User.reset(password, _id);
+
+    res.status(200).json({ message: "Success" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }

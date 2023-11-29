@@ -109,6 +109,10 @@ userSchema.statics.change = async function(oldPass, newPass, _id) {
     throw new Error("New password cannot be current password");
   }
 
+  if (!validator.isStrongPassword(newPass)) {
+    throw new Error("Weak Password");
+  }
+
   const salt = await genSalt(10);
   const hashedPassword = await hash(newPass, salt);
 
@@ -125,12 +129,19 @@ userSchema.statics.reset = async function(password, _id) {
     throw new Error("User not found");
   }
 
-  const match = compare(password, user.password);
+  const match = await compare(password, user.password);
   if (match) {
     throw new Error("New password cannot be current password");
   }
 
-  
+  if (!validator.isStrongPassword(password)) {
+    throw new Error("Weak Password");
+  }
+
+  const salt = await genSalt(10);
+  const hashedPassword = await hash(password, salt);
+
+  await this.findByIdAndUpdate(_id, { password: hashedPassword }, { new: true });
 }
 
 export default mongoose.model('User', userSchema);
