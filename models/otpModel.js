@@ -29,11 +29,14 @@ otpSchema.statics.generate = async function(email) {
   const match2 = await this.findOne({ email });
   
   if (match2) {
-    const timeDiff = Math.floor((Date.now() - match2.createdAt.getTime()) / 1000);
+    const createdAt = new Date(match2.createdAt);
+    const timeDiff = Math.floor((Date.now() - createdAt.getTime()) / 1000);
     if (timeDiff > 60) {
       await this.deleteOne({ email });
     } else {
-      throw new Error(`Try to resend after ${60 - timeDiff} seconds`);
+      const error = new Error(timeDiff);
+      error.code = 401;
+      throw error;
     }
   }
 

@@ -75,7 +75,11 @@ export const sendOtp = async (req, res) => {
     
     res.status(200).json({ message: "success" });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    if (error.code === 401) {
+      res.status(401).json({ time: error.message });
+    } else {
+      res.status(400).json({ error: error.message });
+    }
   }
 }
 
