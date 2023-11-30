@@ -14,7 +14,7 @@ const otpSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    expires: 300,
+    expires: 180,
     default: Date.now,
   },
 });
@@ -29,7 +29,12 @@ otpSchema.statics.generate = async function(email) {
   const match2 = await this.findOne({ email });
   
   if (match2) {
-    await this.deleteOne({ email });
+    const timeDiff = Math.floor((Date.now() - match2.createdAt.getTime()) / 1000);
+    if (timeDiff > 60) {
+      await this.deleteOne({ email });
+    } else {
+      throw new Error(`Try to resend after ${60 - timeDiff} seconds`);
+    }
   }
 
   const otp = otpGenerator.generate(6, {

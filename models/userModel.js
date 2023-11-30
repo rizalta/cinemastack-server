@@ -50,6 +50,10 @@ userSchema.statics.signup = async function(username, email, password, otp) {
     throw new Error("Invalid OTP");
   }
 
+  if (Math.floor((Date.now() - otpMatch.createdAt.getTime()) / 1000) > 180) {
+    throw Error("OTP expired. Request again");
+  }
+
   const salt = await genSalt(10);
   const hashedPassword = await hash(password, salt);
 
